@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Share2, ThumbsUp } from 'lucide-react';
 import type { Post, VideoItem } from '../types';
 import { VIDEOS } from '../data/videos';
 import { HlsVideoPlayer } from './HlsVideoPlayer';
@@ -18,6 +19,8 @@ export const VideosPage: React.FC<VideosPageProps> = ({
   onSearch,
 }) => {
   const [selectedVideo, setSelectedVideo] = useState<VideoItem>(videos[0] || VIDEOS[0]);
+  const [likedVideoIds, setLikedVideoIds] = useState<Set<string>>(() => new Set());
+  const isLiked = likedVideoIds.has(selectedVideo.id);
 
   const currentVideoSrc = selectedVideo.videoUrl || 'https://stream.mux.com/BV3YZtogl89mg9VcNBhhnHm02Y34zI1nlMuMQfAbl3dM/highest.mp4';
 
@@ -35,7 +38,7 @@ export const VideosPage: React.FC<VideosPageProps> = ({
           </div>
 
           <div className="catalog-video-player">
-            <div className="w-full bg-black aspect-video">
+            <div className="catalog-video-frame">
               <HlsVideoPlayer
                 key={selectedVideo.id}
                 src={currentVideoSrc}
@@ -45,19 +48,41 @@ export const VideosPage: React.FC<VideosPageProps> = ({
             </div>
             <div className="catalog-video-info">
               <h2>{selectedVideo.title}</h2>
-              <div className="catalog-video-meta">
-                <span>{selectedVideo.duration}</span>
-                <span>{selectedVideo.uploadDate}</span>
+              <div className="catalog-video-toolbar">
+                <div className="catalog-video-meta">
+                  {selectedVideo.channelName && <span>{selectedVideo.channelName}</span>}
+                  {selectedVideo.duration && <span>{selectedVideo.duration}</span>}
+                  {selectedVideo.uploadDate && <span>{selectedVideo.uploadDate}</span>}
+                </div>
+                <div className="catalog-video-actions">
+                  <button
+                    type="button"
+                    className={`catalog-video-action-button ${isLiked ? 'catalog-video-action-liked' : ''}`}
+                    aria-label={isLiked ? 'Unlike this video' : 'Like this video'}
+                    aria-pressed={isLiked}
+                    onClick={() => setLikedVideoIds((current) => {
+                      const next = new Set(current);
+                      if (next.has(selectedVideo.id)) next.delete(selectedVideo.id);
+                      else next.add(selectedVideo.id);
+                      return next;
+                    })}
+                  >
+                    <ThumbsUp size={18} aria-hidden="true" />
+                    <span>{selectedVideo.likes || 'Like'}</span>
+                  </button>
+                  <a
+                    href={`https://wa.me/255623709042?text=${encodeURIComponent('Tazama video hii: ' + selectedVideo.title)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="catalog-video-action-button"
+                    aria-label={`Share ${selectedVideo.title} on WhatsApp`}
+                  >
+                    <Share2 size={18} aria-hidden="true" />
+                    <span>Share</span>
+                  </a>
+                </div>
               </div>
-              <p>{selectedVideo.description}</p>
-              <a
-                href={`https://wa.me/255623709042?text=${encodeURIComponent('Tazama video hii: ' + selectedVideo.title)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="catalog-share-link"
-              >
-                Share via WhatsApp
-              </a>
+              <p className="catalog-video-description">{selectedVideo.description}</p>
             </div>
           </div>
 

@@ -18,6 +18,8 @@ Open <http://localhost:3000>. The first start creates the SQLite database at `DB
 
 ## Production VPS Deployment (Docker)
 
+Vercel is not supported by the current deployment architecture. This project needs the Express server in `server.ts` and a persistent SQLite database; a default Vite deployment on Vercel only builds the frontend and does not provide those API routes or durable database storage. Video files are hosted separately on BunnyCDN, but their records and stream URLs are loaded through the app API. Use the Docker deployment below, or migrate the backend and database to services supported by Vercel.
+
 This deployment runs the app and Caddy in Docker Compose. Caddy obtains and renews HTTPS certificates. The app is only reachable through Caddy, and the SQLite file lives in the VPS project directory at `./data/blog.sqlite`.
 
 ### 1. Point a domain at the VPS
